@@ -20,7 +20,7 @@ export function Navbar() {
             <Menu size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-xl sm:text-2xl font-semibold text-[#44403c] tracking-tight font-serif italic">
-            One Day.
+            One Day
           </h1>
         </div>
 
