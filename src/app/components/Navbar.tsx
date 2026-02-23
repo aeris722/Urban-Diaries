@@ -1,9 +1,11 @@
 import { format } from "date-fns";
-import { User, Menu } from "lucide-react";
+import { User, Menu, LogOut } from "lucide-react";
 import { motion } from "motion/react";
+import { useAuth } from "../context/AuthContext";
 
 export function Navbar() {
   const currentDate = format(new Date(), "MMMM do");
+  const { user, logOut } = useAuth();
 
   return (
     <motion.header 
@@ -20,7 +22,7 @@ export function Navbar() {
             <Menu size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-xl sm:text-2xl font-semibold text-[#44403c] tracking-tight font-serif italic">
-            One Day
+            Urban Diaries
           </h1>
         </div>
 
@@ -31,12 +33,23 @@ export function Navbar() {
 
         {/* Right Side: Profile */}
         <div className="flex items-center gap-4">
+          <span className="hidden sm:block text-xs text-[#78716c]">{user?.email}</span>
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="h-9 w-9 rounded-full bg-[#f5f5f4] border border-[#e7e5e4] flex items-center justify-center text-[#78716c] hover:bg-[#e7e5e4] transition-all"
+            title={user?.email ?? "Profile"}
           >
             <User size={16} strokeWidth={1.5} />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => logOut()}
+            className="h-9 w-9 rounded-full bg-[#f5f5f4] border border-[#e7e5e4] flex items-center justify-center text-[#78716c] hover:bg-[#e7e5e4] transition-all"
+            title="Sign out"
+          >
+            <LogOut size={16} strokeWidth={1.5} />
           </motion.button>
         </div>
       </div>

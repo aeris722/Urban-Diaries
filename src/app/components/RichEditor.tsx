@@ -7,7 +7,12 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-export function RichEditor() {
+type RichEditorProps = {
+  initialContent?: string;
+  onContentChange?: (content: string) => void;
+};
+
+export function RichEditor({ initialContent, onContentChange }: RichEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -21,7 +26,9 @@ export function RichEditor() {
 
   const syncContent = () => {
     if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
+      const nextContent = editorRef.current.innerHTML;
+      setContent(nextContent);
+      onContentChange?.(nextContent);
     }
   };
 
@@ -39,9 +46,11 @@ export function RichEditor() {
   useEffect(() => {
     // Set initial content if needed
     if (editorRef.current && !editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = "<p>Today was...</p>";
+      const seedContent = initialContent || "<p>Today was...</p>";
+      editorRef.current.innerHTML = seedContent;
+      setContent(seedContent);
     }
-  }, []);
+  }, [initialContent]);
 
   return (
     <div className="flex flex-col gap-4 w-full h-full relative">
