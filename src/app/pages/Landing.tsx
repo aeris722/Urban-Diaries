@@ -1,14 +1,61 @@
-import { motion } from "motion/react";
-import { Link, useNavigate } from "react-router"; 
+﻿import { motion } from "motion/react";
+import { useState } from "react";
+import { useNavigate } from "react-router"; 
 import { 
-  ArrowRight, Lock, Smartphone, Shield, Github, 
+  Lock, Smartphone,
   Bold, Italic, Underline, MapPin, Cloud, Globe, 
   Image as ImageIcon, Sun, Smile, Type, Zap, Meh, Heart, Frown
 } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { useAuth } from "../context/AuthContext";
+import { FirebaseError } from "firebase/app";
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user, logIn, signUp, logInWithGoogle } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const handleEmailAuth = async () => {
+    setAuthError(null);
+    setIsSubmitting(true);
+    try {
+      if (isSignUp) {
+        await signUp(email, password);
+      } else {
+        await logIn(email, password);
+      }
+      navigate("/dashboard");
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        setAuthError(error.message);
+      } else {
+        setAuthError("Authentication failed. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    setAuthError(null);
+    setIsSubmitting(true);
+    try {
+      await logInWithGoogle();
+      navigate("/dashboard");
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        setAuthError(error.message);
+      } else {
+        setAuthError("Google sign in failed. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#faf9f6] text-[#44403c] font-sans selection:bg-[#fde68a]/50 selection:text-[#451a03] overflow-x-hidden">
@@ -18,9 +65,9 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
              <div className="w-8 h-8 rounded-lg bg-[#44403c] flex items-center justify-center text-[#faf9f6]">
-               <span className="font-serif italic font-bold text-lg">O</span>
+               <span className="font-serif italic font-bold text-lg">U</span>
              </div>
-             <span className="font-serif italic font-semibold text-xl tracking-tight">One Day.</span>
+             <span className="font-serif italic font-semibold text-xl tracking-tight">Urban Diaries.</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#78716c]">
@@ -31,14 +78,26 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="text-sm font-medium text-[#78716c] hover:text-[#44403c] transition-colors hidden sm:block">
-              Log in
-            </button>
+            {user ? (
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-sm font-medium text-[#78716c] hover:text-[#44403c] transition-colors hidden sm:block"
+              >
+                Open Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" })}
+                className="text-sm font-medium text-[#78716c] hover:text-[#44403c] transition-colors hidden sm:block"
+              >
+                Log in
+              </button>
+            )}
             <Button 
-              onClick={() => navigate("/dashboard")}
+              onClick={() => (user ? navigate("/dashboard") : document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }))}
               className="bg-[#44403c] hover:bg-[#292524] text-[#faf9f6] rounded-full px-6 transition-transform active:scale-95"
             >
-              Get Started
+              {user ? "Dashboard" : "Get Started"}
             </Button>
           </div>
         </div>
@@ -80,11 +139,11 @@ export default function Landing() {
              className="flex items-center justify-center gap-4 pt-4"
           >
             <Button 
-              onClick={() => navigate("/dashboard")}
+              onClick={() => (user ? navigate("/dashboard") : document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }))}
               size="lg"
               className="bg-[#44403c] hover:bg-[#292524] text-[#faf9f6] rounded-full px-8 h-12 text-base shadow-lg shadow-[#44403c]/20"
             >
-              Start Journaling
+              {user ? "Go to Dashboard" : "Start Journaling"}
             </Button>
             <Button 
               variant="outline"
@@ -135,7 +194,7 @@ export default function Landing() {
                {/* Metadata Chips */}
                <div className="flex flex-wrap gap-3 mb-8">
                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fffbeb] text-[#b45309] text-xs font-medium border border-[#fde68a]/50">
-                    <Sun size={12} /> <span>Sunny 72°F</span>
+                    <Sun size={12} /> <span>Sunny 72F</span>
                  </div>
                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#047857] text-xs font-medium border border-[#a7f3d0]/50">
                     <MapPin size={12} /> <span>The Daily Grind Cafe</span>
@@ -157,7 +216,7 @@ export default function Landing() {
                
                <div className="text-lg leading-loose text-[#44403c] font-serif space-y-6">
                  <p>
-                   Today I'm very grateful because of <span className="font-semibold text-[#b45309] bg-[#fff7ed]">Emma</span>. We went to that small coffee shop on the corner—the one with the velvet armchairs and the smell of roasted hazelnuts.
+                   Today I'm very grateful because of <span className="font-semibold text-[#b45309] bg-[#fff7ed]">Emma</span>. We went to that small coffee shop on the corner-the one with the velvet armchairs and the smell of roasted hazelnuts.
                  </p>
                  <p>
                    The rain was pouring outside, tapping against the glass like a soft rhythm, but it felt so warm inside. 
@@ -205,6 +264,61 @@ export default function Landing() {
           </motion.div>
 
         </motion.div>
+
+        {!user && (
+          <div id="auth" className="mt-12 max-w-md mx-auto rounded-3xl border border-[#e7e5e4] bg-white/80 backdrop-blur p-6 md:p-8 shadow-xl shadow-[#a8a29e]/10">
+            <h3 className="text-2xl font-serif italic text-[#292524]">
+              {isSignUp ? "Create your account" : "Log in to continue"}
+            </h3>
+            <p className="mt-2 text-sm text-[#78716c]">
+              Use Firebase Authentication to securely access your dashboard.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+                className="w-full rounded-xl border border-[#d6d3d1] bg-white px-4 py-3 text-sm outline-none focus:border-[#78716c]"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full rounded-xl border border-[#d6d3d1] bg-white px-4 py-3 text-sm outline-none focus:border-[#78716c]"
+              />
+            </div>
+
+            {authError && <p className="mt-3 text-xs text-red-600">{authError}</p>}
+
+            <div className="mt-5 grid gap-3">
+              <Button
+                onClick={handleEmailAuth}
+                disabled={isSubmitting || !email || !password}
+                className="w-full bg-[#44403c] hover:bg-[#292524] text-[#faf9f6] rounded-xl"
+              >
+                {isSubmitting ? "Please wait..." : isSignUp ? "Sign up" : "Log in"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleGoogleAuth}
+                disabled={isSubmitting}
+                className="w-full rounded-xl border-[#d6d3d1]"
+              >
+                Continue with Google
+              </Button>
+            </div>
+
+            <button
+              onClick={() => setIsSignUp((prev) => !prev)}
+              className="mt-4 text-sm text-[#57534e] hover:text-[#292524]"
+            >
+              {isSignUp ? "Already have an account? Log in" : "Need an account? Sign up"}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Features Section - Deep Blue */}
@@ -216,7 +330,7 @@ export default function Landing() {
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl md:text-5xl font-serif italic text-[#f1f5f9]">More than just words.</h2>
             <p className="text-[#94a3b8] max-w-2xl mx-auto text-lg font-light">
-              One Day gives your memories the context they deserve with modern tools.
+              Urban Diaries gives your memories the context they deserve with modern tools.
             </p>
           </div>
 
@@ -258,10 +372,10 @@ export default function Landing() {
       <footer className="bg-[#faf9f6] py-12 border-t border-[#e7e5e4]">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-             <span className="font-serif italic font-bold text-[#44403c] text-xl">One Day.</span>
+             <span className="font-serif italic font-bold text-[#44403c] text-xl">Urban Diaries.</span>
           </div>
           <div className="text-sm text-[#a8a29e] font-medium">
-            &copy; {new Date().getFullYear()} One Day Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} Urban Diaries Inc. All rights reserved.
           </div>
         </div>
       </footer>

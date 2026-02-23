@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import Dashboard from "./pages/Dashboard";
 import Landing from "./pages/Landing";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -9,6 +10,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    Component: Dashboard,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
 ]);

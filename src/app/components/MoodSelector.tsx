@@ -11,7 +11,24 @@ const moods = [
 ];
 
 export function MoodSelector() {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  return <MoodSelectorControl />;
+}
+
+type MoodSelectorProps = {
+  value?: string | null;
+  onChange?: (mood: string) => void;
+};
+
+export function MoodSelectorControl({ value, onChange }: MoodSelectorProps = {}) {
+  const [internalMood, setInternalMood] = useState<string | null>(null);
+  const selectedMood = value === undefined ? internalMood : value;
+
+  const setMood = (mood: string) => {
+    if (value === undefined) {
+      setInternalMood(mood);
+    }
+    onChange?.(mood);
+  };
 
   return (
     <div className="w-full flex justify-center py-4">
@@ -27,7 +44,7 @@ export function MoodSelector() {
           return (
             <motion.button
               key={mood.id}
-              onClick={() => setSelectedMood(mood.id)}
+              onClick={() => setMood(mood.id)}
               whileHover={{ scale: 1.2, rotate: isSelected ? 0 : 10 }}
               whileTap={{ scale: 0.9 }}
               className="relative group p-2 rounded-full transition-all duration-300"
