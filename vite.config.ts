@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
+      // This will be 1st git pull request
       '@': path.resolve(__dirname, './src'),
     },
   },
