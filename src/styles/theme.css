@@ -179,3 +179,30 @@
     line-height: 1.5;
   }
 }
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #a8a29e;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap h1 {
+  font-size: 2rem;
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  font-style: italic;
+  margin: 0.6rem 0;
+}
+
+.tiptap img {
+  border-radius: 1rem;
+  height: auto;
+  margin: 1rem 0;
+  max-width: 100%;
+}
