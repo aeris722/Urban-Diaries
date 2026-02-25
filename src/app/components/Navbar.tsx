@@ -3,7 +3,11 @@ import { User, Menu, LogOut } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../context/AuthContext";
 
-export function Navbar() {
+type NavbarProps = {
+  onMenuClick?: () => void;
+};
+
+export function Navbar({ onMenuClick }: NavbarProps) {
   const currentDate = format(new Date(), "MMMM do");
   const { user, logOut } = useAuth();
 
@@ -18,7 +22,11 @@ export function Navbar() {
         
         {/* Left Side: App Name */}
         <div className="flex items-center gap-3">
-          <button className="p-2 -ml-2 rounded-full hover:bg-[#f5f5f4] transition-colors text-[#78716c]">
+          <button
+            onClick={onMenuClick}
+            className="p-2 -ml-2 rounded-full hover:bg-[#f5f5f4] transition-colors text-[#78716c]"
+            aria-label="Toggle sessions panel"
+          >
             <Menu size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-xl sm:text-2xl font-semibold text-[#44403c] tracking-tight font-serif italic">

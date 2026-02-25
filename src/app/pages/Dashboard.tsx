@@ -1,148 +1,284 @@
-import { useEffect, useMemo, useState } from "react";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { MetadataBar } from "../components/MetadataBar";
-import { MoodSelectorControl } from "../components/MoodSelector";
+import { useSearchParams } from "react-router";
+import { Skeleton } from "../components/ui/skeleton";
 import { Navbar } from "../components/Navbar";
-import { RichEditor } from "../components/RichEditor";
+import { MetadataBar } from "../../features/journal/components/MetadataBar";
+import { SessionSidebar } from "../../features/journal/components/SessionSidebar";
+import { useAutosave } from "../../features/journal/hooks/useAutosave";
+import { useSessions } from "../../features/journal/hooks/useSessions";
+import { useUserWeather } from "../../features/journal/hooks/useUserWeather";
+import type { SaveStatus, SessionDraft } from "../../features/journal/types/journal";
 import { useAuth } from "../context/AuthContext";
-import { db } from "../lib/firebase";
+
+const LazyRichEditor = lazy(async () => {
+  const module = await import("../../features/journal/components/RichEditor");
+  return { default: module.RichEditor };
+});
+
+const emptyDraft: SessionDraft = {
+  title: "Untitled Entry",
+  content: "",
+  mood: "",
+  temperature: null,
+  location: "",
+  images: [],
+  editVersion: 0,
+};
+
+function statusLabel(status: SaveStatus): string {
+  if (status === "saving") return "Saving...";
+  if (status === "saved") return "Saved";
+  if (status === "error") return "Save failed";
+  return "Idle";
+}
+
+function extractImageSources(content: string): string[] {
+  return Array.from(new DOMParser().parseFromString(content, "text/html").querySelectorAll("img"))
+    .map((image) => image.getAttribute("src") ?? "")
+    .filter(Boolean);
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [content, setContent] = useState("<p>Today was...</p>");
-  const [mood, setMood] = useState<string | null>(null);
-  const [isBootstrapping, setIsBootstrapping] = useState(true);
-  const [status, setStatus] = useState("Saved");
+  const uid = user?.uid;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const entryRef = useMemo(() => {
-    if (!user) return null;
-    return doc(db, "users", user.uid, "entries", "current");
-  }, [user]);
+  const {
+    sessions,
+    activeSession,
+    activeSessionId,
+    selectSession,
+    createSession,
+    deleteSession,
+    isLoading: sessionsLoading,
+    isCreating,
+  } = useSessions(uid);
+
+  const { locationName, temperature, icon } = useUserWeather();
+
+  const [draft, setDraft] = useState<SessionDraft>(emptyDraft);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const draftBufferRef = useRef<Record<string, SessionDraft>>({});
+  const sessionIdFromUrl = searchParams.get("session");
 
   useEffect(() => {
-    const loadEntry = async () => {
-      if (!entryRef) return;
-      const snapshot = await getDoc(entryRef);
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setContent(typeof data.content === "string" ? data.content : "<p>Today was...</p>");
-        setMood(typeof data.mood === "string" ? data.mood : null);
-      }
-      setIsBootstrapping(false);
-    };
+    if (!sessionsLoading && uid && sessions.length === 0) {
+      createSession().catch(() => {
+        // keep UI responsive on first load
+      });
+    }
+  }, [createSession, sessions.length, sessionsLoading, uid]);
 
-    loadEntry().catch(() => {
-      setIsBootstrapping(false);
+  useEffect(() => {
+    if (!sessionIdFromUrl || !sessions.some((session) => session.id === sessionIdFromUrl)) return;
+    if (sessionIdFromUrl !== activeSessionId) {
+      selectSession(sessionIdFromUrl);
+    }
+  }, [activeSessionId, selectSession, sessionIdFromUrl, sessions]);
+
+  useEffect(() => {
+    if (!activeSessionId) return;
+    if (searchParams.get("session") === activeSessionId) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("session", activeSessionId);
+    setSearchParams(next, { replace: true });
+  }, [activeSessionId, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!activeSessionId) {
+      setDraft(emptyDraft);
+      return;
+    }
+
+    const buffered = draftBufferRef.current[activeSessionId];
+    if (buffered) {
+      setDraft(buffered);
+      return;
+    }
+
+    if (activeSession) {
+      const hydrated: SessionDraft = {
+        title: activeSession.title,
+        content: activeSession.content,
+        mood: activeSession.mood,
+        temperature: activeSession.temperature,
+        location: activeSession.location,
+        images: activeSession.images,
+        editVersion: activeSession.editVersion,
+      };
+      setDraft(hydrated);
+      draftBufferRef.current[activeSessionId] = hydrated;
+    }
+  }, [activeSession, activeSessionId]);
+
+  useEffect(() => {
+    if (!activeSessionId) return;
+    setDraft((prev) => {
+      const nextLocation = prev.location.trim() ? prev.location : locationName;
+      const nextTemperature = prev.temperature ?? temperature;
+      if (nextLocation === prev.location && nextTemperature === prev.temperature) {
+        return prev;
+      }
+      return {
+        ...prev,
+        location: nextLocation,
+        temperature: nextTemperature,
+        editVersion: prev.editVersion + 1,
+      };
     });
-  }, [entryRef]);
+  }, [activeSessionId, locationName, temperature]);
+
+  const updateDraft = useCallback((next: Partial<Omit<SessionDraft, "editVersion">>) => {
+    setDraft((prev) => {
+      const hasChange = Object.entries(next).some(([key, value]) => {
+        const current = prev[key as keyof SessionDraft];
+        if (Array.isArray(current) && Array.isArray(value)) {
+          return JSON.stringify(current) !== JSON.stringify(value);
+        }
+        return current !== value;
+      });
+
+      if (!hasChange) return prev;
+      return { ...prev, ...next, editVersion: prev.editVersion + 1 };
+    });
+  }, []);
 
   useEffect(() => {
-    if (!entryRef || isBootstrapping) return;
+    if (!activeSessionId) return;
+    draftBufferRef.current[activeSessionId] = draft;
+  }, [activeSessionId, draft]);
 
-    setStatus("Saving...");
-    const timeoutId = setTimeout(async () => {
-      try {
-        await setDoc(
-          entryRef,
-          {
-            content,
-            mood,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true },
+  const { flushPendingSave, cancelPendingSave, waitForIdle } = useAutosave({
+    uid,
+    sessionId: activeSessionId,
+    draft,
+    enabled: Boolean(activeSessionId),
+    onStatusChange: setSaveStatus,
+  });
+
+  const onSessionSelect = useCallback(
+    (sessionId: string) => {
+      void (async () => {
+        if (sessionId !== activeSessionId) {
+          await flushPendingSave();
+        }
+        selectSession(sessionId);
+        const next = new URLSearchParams(searchParams);
+        next.set("session", sessionId);
+        setSearchParams(next);
+        setSaveStatus("idle");
+        setIsSidebarOpen(false);
+      })();
+    },
+    [activeSessionId, flushPendingSave, searchParams, selectSession, setSearchParams],
+  );
+
+  const onSessionCreate = useCallback(async () => {
+    await flushPendingSave();
+    const createdId = await createSession();
+    if (createdId) {
+      const next = new URLSearchParams(searchParams);
+      next.set("session", createdId);
+      setSearchParams(next);
+    }
+    setSaveStatus("idle");
+    setIsSidebarOpen(false);
+    return createdId;
+  }, [createSession, flushPendingSave, searchParams, setSearchParams]);
+
+  const onSessionDelete = useCallback(
+    (sessionId: string) => {
+      void (async () => {
+        const confirmed = window.confirm(
+          "Are you sure you want to delete this diary entry? This action cannot be undone.",
         );
-        setStatus("Saved");
-      } catch {
-        setStatus("Save failed");
-      }
-    }, 700);
+        if (!confirmed) return;
 
-    return () => clearTimeout(timeoutId);
-  }, [content, entryRef, isBootstrapping, mood]);
+        if (sessionId === activeSessionId) {
+          cancelPendingSave();
+          await waitForIdle(sessionId);
+        }
+
+        delete draftBufferRef.current[sessionId];
+        const nextId = await deleteSession(sessionId);
+
+        if (nextId) {
+          const next = new URLSearchParams(searchParams);
+          next.set("session", nextId);
+          setSearchParams(next);
+        }
+
+        setSaveStatus("idle");
+      })();
+    },
+    [activeSessionId, cancelPendingSave, deleteSession, searchParams, setSearchParams, waitForIdle],
+  );
+
+  const saveStateText = useMemo(() => statusLabel(saveStatus), [saveStatus]);
 
   return (
-    <div className="min-h-screen w-full bg-[#fdfbf7] text-[#44403c] font-sans selection:bg-[#fde68a]/50 selection:text-[#451a03] overflow-x-hidden relative">
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-[#fcd34d]/20 blur-[150px] mix-blend-multiply opacity-50"
-        />
-        <motion.div
-          animate={{
-            scale: [1.1, 1, 1.1],
-            x: [0, -40, 0],
-            y: [0, 40, 0],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-[10%] -right-[15%] w-[50vw] h-[50vw] rounded-full bg-[#fdba74]/20 blur-[120px] mix-blend-multiply opacity-40"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 20, 0],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-          className="absolute bottom-[-10%] left-[20%] w-[70vw] h-[70vw] rounded-full bg-[#d6d3d1]/30 blur-[180px] mix-blend-multiply opacity-30"
-        />
-        <div className="absolute inset-0 opacity-[0.5] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-105 contrast-[1.1] pointer-events-none" />
-      </div>
+    <div className="min-h-screen w-full bg-[#fdfbf7] text-[#44403c] selection:bg-[#fde68a]/50 selection:text-[#451a03]">
+      <Navbar onMenuClick={() => setIsSidebarOpen((prev) => !prev)} />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col gap-8 md:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="text-center space-y-3 pt-4 md:pt-8"
-          >
-            <h2 className="text-3xl md:text-5xl font-medium font-serif italic text-[#292524] tracking-tight leading-snug">
-              Every day is a story.
-            </h2>
-            <p className="text-[#78716c] text-sm md:text-base font-light tracking-wide max-w-md mx-auto leading-relaxed opacity-90">
-              Where will yours take you today?
-            </p>
-          </motion.div>
+      <div
+        className={`fixed inset-0 z-40 bg-black/25 transition-opacity duration-300 ${
+          isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="w-full flex justify-center"
-          >
-            <MoodSelectorControl value={mood} onChange={setMood} />
-          </motion.div>
+      <SessionSidebar
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onSelect={onSessionSelect}
+        onDelete={onSessionDelete}
+        onCreate={onSessionCreate}
+        isLoading={sessionsLoading}
+        isCreating={isCreating}
+        className={`fixed left-3 top-[84px] z-50 h-[calc(100vh-96px)] transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-[120%]"
+        }`}
+      />
 
-          <div className="flex-1 flex flex-col gap-6">
-            <MetadataBar />
-            <div className="relative p-8 md:p-12 rounded-[2.5rem] bg-[#fcfcfc]/50 backdrop-blur-2xl border border-[#e7e5e4]/60 shadow-xl shadow-[#a8a29e]/5 ring-1 ring-white/60">
-              {!isBootstrapping ? (
-                <RichEditor initialContent={content} onContentChange={setContent} />
-              ) : (
-                <div className="min-h-[60vh] w-full text-[#8d7b6f]/60 text-xl font-serif italic">Loading your journal...</div>
-              )}
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-4 lg:px-6 lg:py-6">
+        <main className="min-w-0 rounded-3xl border border-[#e7e5e4] bg-white/55 p-4 backdrop-blur-xl lg:p-6">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <input
+                value={draft.title}
+                onChange={(event) => updateDraft({ title: event.target.value })}
+                placeholder="Untitled Entry"
+                className="w-full max-w-[520px] rounded-xl border border-[#e7e5e4] bg-white px-4 py-2 text-xl font-serif italic outline-none focus:border-[#a8a29e]"
+              />
+              <span className={`text-xs uppercase tracking-wider ${saveStatus === "error" ? "text-red-600" : "text-[#78716c]"}`}>
+                {saveStateText}
+              </span>
             </div>
-          </div>
 
-          <motion.footer
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1 }}
-            className="mt-auto py-12 text-center border-t border-[#e7e5e4]/30"
-          >
-            <p className="text-[#a8a29e] text-xs font-serif italic tracking-wider">
-              {status} | Urban Diaries &copy; {new Date().getFullYear()} - capture the moment
-            </p>
-          </motion.footer>
+            <MetadataBar
+              locationName={locationName}
+              temperature={temperature}
+              weatherIconName={icon}
+              location={draft.location}
+              onLocationChange={(location) => updateDraft({ location })}
+              temperatureValue={draft.temperature}
+              onTemperatureChange={(value) => updateDraft({ temperature: value })}
+              mood={draft.mood}
+              onMoodSelect={(mood) => updateDraft({ mood })}
+            />
+
+            <div className="mt-5 rounded-[2rem] border border-[#ecebe8] bg-[#fcfcfc]/70 p-4 shadow-sm lg:p-8">
+              <Suspense fallback={<Skeleton className="h-[60vh] w-full rounded-2xl" />}>
+                <LazyRichEditor
+                  key={activeSessionId ?? "empty"}
+                  initialContent={draft.content}
+                  onContentChange={(content) => updateDraft({ content, images: extractImageSources(content) })}
+                />
+              </Suspense>
+            </div>
+          </motion.div>
         </main>
       </div>
     </div>

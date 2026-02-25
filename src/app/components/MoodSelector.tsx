@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { Smile, Frown, Meh, Heart, Zap } from "lucide-react";
-import { motion } from "motion/react";
+import { Heart, Zap, Smile, CloudRain, Moon, Flower2, LucideIcon } from "lucide-react";
 
-const moods = [
-  { id: "happy", icon: Smile, label: "Happy", color: "text-amber-500" },
-  { id: "energetic", icon: Zap, label: "Energetic", color: "text-orange-500" },
-  { id: "neutral", icon: Meh, label: "Neutral", color: "text-stone-500" },
-  { id: "loved", icon: Heart, label: "Loved", color: "text-rose-500" },
-  { id: "down", icon: Frown, label: "Down", color: "text-indigo-500" },
+type Mood = {
+  id: string;
+  icon: LucideIcon;
+  label: string;
+  color: string;
+  selectedStyle: string;
+};
+
+const moods: Mood[] = [
+  { id: "love", icon: Heart, label: "Love", color: "text-rose-400", selectedStyle: "shadow-[0_0_18px_rgba(244,114,182,0.45)] ring-rose-200 bg-rose-50" },
+  { id: "energetic", icon: Zap, label: "Energetic", color: "text-amber-400", selectedStyle: "shadow-[0_0_18px_rgba(251,191,36,0.45)] ring-amber-200 bg-amber-50" },
+  { id: "happy", icon: Smile, label: "Happy", color: "text-orange-400", selectedStyle: "shadow-[0_0_18px_rgba(251,146,60,0.45)] ring-orange-200 bg-orange-50" },
+  { id: "sad", icon: CloudRain, label: "Sad", color: "text-sky-400", selectedStyle: "shadow-[0_0_18px_rgba(56,189,248,0.45)] ring-sky-200 bg-sky-50" },
+  { id: "lonely", icon: Moon, label: "Lonely", color: "text-indigo-400", selectedStyle: "shadow-[0_0_18px_rgba(129,140,248,0.45)] ring-indigo-200 bg-indigo-50" },
+  { id: "calm", icon: Flower2, label: "Calm", color: "text-emerald-400", selectedStyle: "shadow-[0_0_18px_rgba(52,211,153,0.45)] ring-emerald-200 bg-emerald-50" },
 ];
 
 export function MoodSelector() {
@@ -17,11 +25,13 @@ export function MoodSelector() {
 type MoodSelectorProps = {
   value?: string | null;
   onChange?: (mood: string) => void;
+  size?: "default" | "compact";
 };
 
-export function MoodSelectorControl({ value, onChange }: MoodSelectorProps = {}) {
+export function MoodSelectorControl({ value, onChange, size = "default" }: MoodSelectorProps = {}) {
   const [internalMood, setInternalMood] = useState<string | null>(null);
   const selectedMood = value === undefined ? internalMood : value;
+  const compact = size === "compact";
 
   const setMood = (mood: string) => {
     if (value === undefined) {
@@ -31,42 +41,27 @@ export function MoodSelectorControl({ value, onChange }: MoodSelectorProps = {})
   };
 
   return (
-    <div className="w-full flex justify-center py-4">
-      <motion.div 
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="flex items-center gap-4 sm:gap-6 px-6 py-3 rounded-full bg-white/60 backdrop-blur-xl border border-white/40 shadow-lg shadow-[#8d7b6f]/5 hover:shadow-[#8d7b6f]/10 transition-shadow duration-500"
-      >
+    <div className={`flex items-center ${compact ? "gap-2" : "gap-3"}`}>
+      {!compact ? <span className="text-sm text-[#78716c]">Mood</span> : null}
+      <div className="flex items-center gap-1 rounded-full border border-[#ece8e1] bg-white/90 px-2 py-1">
         {moods.map((mood) => {
           const isSelected = selectedMood === mood.id;
           const Icon = mood.icon;
-          
           return (
-            <motion.button
+            <button
               key={mood.id}
               onClick={() => setMood(mood.id)}
-              whileHover={{ scale: 1.2, rotate: isSelected ? 0 : 10 }}
-              whileTap={{ scale: 0.9 }}
-              className="relative group p-2 rounded-full transition-all duration-300"
+              className={`grid h-10 w-10 place-items-center rounded-full ring-1 ring-transparent transition-transform duration-150 hover:scale-110 ${
+                isSelected ? mood.selectedStyle : "hover:bg-[#f6f2eb]"
+              }`}
               title={mood.label}
+              aria-label={mood.label}
             >
-              <Icon 
-                size={24} 
-                strokeWidth={isSelected ? 2.5 : 1.5}
-                className={`transition-colors duration-300 ${isSelected ? mood.color : "text-[#a8a29e] group-hover:text-[#5d4037]"}`} 
-              />
-              
-              {isSelected && (
-                <motion.div
-                  layoutId="active-mood"
-                  className="absolute inset-0 bg-white/50 rounded-full -z-10 blur-md opacity-60"
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                />
-              )}
-            </motion.button>
+              <Icon size={19} className={mood.color} strokeWidth={1.9} />
+            </button>
           );
         })}
-      </motion.div>
+      </div>
     </div>
   );
 }
