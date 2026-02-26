@@ -1,0 +1,264 @@
+/* Journal Image Styles */
+
+.tiptap-editor-container {
+  position: relative;
+  overflow: visible;
+}
+
+.tiptap {
+  overflow: visible;
+  contain: none;
+  caret-color: var(--accent-mocha);
+  line-height: 1.7;
+}
+
+/* Keyboard focus outline for accessibility */
+.tiptap:focus-visible {
+  outline: 2px solid var(--accent-coffee);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
+.tiptap .journal-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tiptap .journal-image:hover {
+  opacity: 0.96;
+}
+
+.tiptap .journal-image--center {
+  display: block;
+  margin: 0 auto 1rem auto;
+  clear: both;
+}
+
+.tiptap .journal-image--full {
+  display: block;
+  width: 100%;
+  margin: 0 0 1rem 0;
+  clear: both;
+}
+
+/* Selection state only — no random borders */
+.tiptap .journal-image.is-selected {
+  outline: 2px solid var(--accent-coffee);
+  outline-offset: 3px;
+  border-radius: 0.75rem;
+}
+
+.image-drop-zone {
+  border: 2px dashed transparent;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.image-drop-zone.drag-over {
+  border-color: var(--accent-coffee);
+  background: rgba(181, 138, 96, 0.08);
+}
+
+@keyframes image-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tiptap .journal-image.just-inserted {
+  animation: image-appear 0.25s ease-out;
+}
+
+@keyframes handle-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Remove default ProseMirror selected node outline — we handle selection ourselves */
+.ProseMirror-selectednode {
+  outline: none !important;
+}
+
+.ProseMirror-focused {
+  outline: none;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Interactive image node view ── */
+.image-node-view {
+  display: block;
+  width: 100%;
+}
+
+.image-node-container {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+  touch-action: none;
+  pointer-events: auto;
+  will-change: transform, width, height;
+}
+
+.image-node-container.align-center {
+  margin: 0 auto 1.25rem auto;
+  clear: both;
+}
+
+.image-node-container.align-full {
+  width: 100% !important;
+  margin: 0 0 1.25rem 0;
+  clear: both;
+}
+
+.image-node-container.dragging {
+  cursor: grabbing !important;
+}
+
+.image-node-container.resize-active,
+.image-node-container.dragging {
+  transition: none !important;
+}
+
+.image-node-container .image-toolbar {
+  pointer-events: auto;
+  z-index: 1400;
+}
+
+/* ── Image wrap: blur-behind pattern ──
+   Sharp image on top (z-index 2), blur pseudo-element behind (z-index 1)
+   This way the img element stays sharp during resize.                     */
+.image-node-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.image-node-container.resize-active::before {
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Selection ring — ONLY visible when node is explicitly selected */
+.image-node-container img.ring-2 {
+  /* Ensure the ring uses coffee accent, not amber */
+  --tw-ring-color: var(--accent-coffee) !important;
+}
+
+/* ── Corner resize handles ── */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accent-coffee);
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  z-index: 1300;
+  animation: handle-appear 0.16s ease-out;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.resize-handle:hover {
+  transform: scale(1.15);
+  background: var(--accent-pastel-1);
+}
+
+.resize-handle--nw {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.resize-handle--ne {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--se {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+@media (max-width: 768px) {
+  .resize-handle {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resize-handle {
+    width: 18px;
+    height: 18px;
+    border-width: 3px;
+  }
+}
+
+/* Text flow around images */
+.tiptap p,
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap ul,
+.tiptap ol,
+.tiptap blockquote {
+  overflow: hidden;
+}
+
+/* Clearfix */
+.tiptap::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Global blur overlay during resize — softens non-image editor content */
+.editor-global-blur-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  background: rgba(252, 249, 246, 0.25);
+  transition: opacity 0.2s ease;
+}
+
+/* Tiptap image styles */
+.tiptap img {
+  border-radius: 0.75rem;
+  height: auto;
+  margin: 1rem 0;
+  max-width: 100%;
+  position: relative;
+  z-index: 2;
+}
