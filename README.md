@@ -1,89 +1,132 @@
 # Urban Diaries
 
-A journaling web app built with React + Vite + Firebase.
+Urban Diaries is a production-ready journaling web application focused on fast writing, autosave reliability, mood/context tracking, and Google-only authentication.
 
-## Live Site
+## Project Overview
 
-- https://urban-diaries.web.app
+- Multi-session rich-text journaling dashboard
+- Inline image support with resize/drag controls in the editor
+- Debounced autosave backed by Firestore
+- Google Auth only access model
+- Admin access flow backed by Firebase Functions custom claims
+- Responsive landing page and dashboard
 
 ## Tech Stack
 
 - React 18
-- Vite 6
-- Firebase Authentication
-- Firestore
+- TypeScript + Vite 6
+- Tailwind CSS 4
+- Firebase Auth, Firestore, Functions
 - Firebase Hosting
+- Tiptap editor
 
-## 1. Install and Run Locally
+## Updated Source Structure
+
+```text
+src/
+  components/
+  pages/
+  hooks/
+  utils/
+  styles/
+  assets/
+  services/
+  App.tsx
+  routes.tsx
+  main.tsx
+```
+
+## Setup
+
+1. Install dependencies:
 
 ```bash
 npm install
+npm install --prefix functions
+```
+
+2. Create root env file:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Create functions env file:
+
+```bash
+cp functions/.env.example functions/.env
+```
+
+4. Start development server:
+
+```bash
 npm run dev
 ```
 
-Open the local URL shown in terminal (usually `http://localhost:5173`).
+## Environment Variables
 
-## 2. Firebase Setup (Console)
-
-1. Create/select a Firebase project.
-2. Add a **Web App**.
-3. Enable **Authentication**:
-- Email/Password
-- Google (optional but used in this app)
-4. Create a **Firestore Database**.
-
-## 3. Environment Variables
-
-Create a file named `.env.local` in the project root:
+Root `.env.local`:
 
 ```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_FUNCTIONS_REGION=us-central1
 ```
 
-Notes:
-- Do not commit `.env.local`.
-- This repo includes `.env.example` as a template.
+Functions `functions/.env`:
 
-## 4. Firebase Hosting Init (One-Time)
-
-If not already initialized:
-
-```bash
-firebase login
-firebase init hosting
+```env
+ADMIN_PASSWORD=your_strong_admin_password
+ADMIN_EMAIL=your-google-account@gmail.com
 ```
 
-Choose:
-- Use existing project
-- Your Firebase project
-- Public directory: `dist`
-- Single-page app rewrite: `Yes`
-- GitHub deploy setup: `No`
-- Overwrite `index.html`: `No`
+## Firebase Setup
 
-## 5. Deploy
+1. Create/select a Firebase project.
+2. Add a web app and copy config values into `.env.local`.
+3. Enable Authentication with Google provider.
+4. Create Firestore database.
+5. Deploy Firestore rules from `firestore.rules`.
+6. Configure Functions runtime env (`functions/.env`) and deploy functions.
+7. In Authentication -> Authorized domains, include your hosting domains.
+
+## Commands
+
+- `npm run dev` - start Vite dev server
+- `npm run build` - create production build
+- `npm run preview` - preview production build
+- `firebase emulators:start --only functions` - run functions emulator (from `functions/`)
+- `firebase deploy --only hosting,functions,firestore:rules` - deploy app
+
+## Deployment
+
+1. Build frontend:
 
 ```bash
 npm run build
-firebase deploy --only hosting
 ```
 
-## 6. Common Issue
+2. Deploy:
 
-If site deploys but Google login fails:
+```bash
+firebase deploy --only hosting,functions,firestore:rules
+```
 
-1. Firebase Console -> Authentication -> Settings -> Authorized domains
-2. Add:
-- `urban-diaries.web.app`
-- `urban-diaries.firebaseapp.com`
+3. Verify:
 
-## Scripts
+- Google sign-in works in production
+- Dashboard sessions load/create/delete correctly
+- Autosave status transitions to `Saved`
+- Admin route `/adminashis` can set and read admin claims
 
-- `npm run dev` - run dev server
-- `npm run build` - production build
-- `npm run preview` - preview production build locally
+## Admin Access Flow
+
+1. Open `/adminashis`
+2. Sign in with Google
+3. Enter admin password
+4. Cloud Function `verifyAdminPassword` sets custom claim
+5. Client refreshes token and redirects to `/admin-dashboard`

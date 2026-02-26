@@ -119,6 +119,24 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Coffee pastel font utilities */
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility font-body {
+  font-family: var(--font-body);
+}
+
+/* Glass surface utility */
+@utility glass-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-1);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -181,7 +199,7 @@
 }
 
 .tiptap p.is-editor-empty:first-child::before {
-  color: #a8a29e;
+  color: var(--muted, #9b8f86);
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -192,17 +210,12 @@
   font-size: 2rem;
   font-style: italic;
   margin: 0.75rem 0;
+  font-family: var(--font-display);
 }
 
 .tiptap h2 {
   font-size: 1.5rem;
   font-style: italic;
   margin: 0.6rem 0;
-}
-
-.tiptap img {
-  border-radius: 1rem;
-  height: auto;
-  margin: 1rem 0;
-  max-width: 100%;
+  font-family: var(--font-display);
 }

@@ -1,0 +1,82 @@
+:root {
+  --bg: #fcf9f6;
+  --surface: rgba(255, 255, 255, 0.6);
+  --glass: rgba(255, 255, 255, 0.55);
+  --muted: #9b8f86;
+  --landing-muted: #7d7168;
+  --landing-muted-strong: #5f544c;
+  --text: #2b2623;
+  --accent-coffee: #b58a60;
+  --accent-pastel-1: #efd9c1;
+  --accent-pastel-2: #f3e4d6;
+  --accent-mocha: #6b4f3a;
+  --accent-teal: #6ec6c6;
+  --notion-blue: #2f6fbf;
+  --glass-blur: 12px;
+  --card-radius: 14px;
+  --shadow-1: 0 8px 20px rgba(43, 38, 35, 0.08);
+  --shadow-2: 0 16px 40px rgba(43, 38, 35, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --font-display: "Playfair Display", "Source Serif 4", Georgia, serif;
+  --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+
+  /* spacing + layout tokens */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --container-desktop: 1200px;
+  --container-tablet: 960px;
+  --container-mobile: 100%;
+  --hero-heading-desktop: clamp(2.4rem, 4vw, 4.3rem);
+  --hero-heading-tablet: clamp(2.1rem, 5vw, 3.4rem);
+  --hero-heading-mobile: clamp(1.8rem, 8vw, 2.4rem);
+}
+
+.dark {
+  --bg: #171210;
+  --surface: rgba(40, 30, 24, 0.72);
+  --glass: rgba(37, 29, 24, 0.66);
+  --muted: #b6a799;
+  --landing-muted: #c8b7a8;
+  --landing-muted-strong: #ded0c4;
+  --text: #f7efe7;
+  --accent-coffee: #d6a67a;
+  --accent-pastel-1: #3f2e25;
+  --accent-pastel-2: #2f221c;
+  --accent-mocha: #f2c8a2;
+  --accent-teal: #72d8db;
+  --notion-blue: #69a7ff;
+  --glass-border: rgba(214, 179, 150, 0.22);
+  --shadow-1: 0 12px 28px rgba(6, 4, 3, 0.42);
+  --shadow-2: 0 24px 52px rgba(6, 4, 3, 0.55);
+}
+
+.glass-surface {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-1);
+}
+
+.glass-button-focus:focus-visible {
+  outline: 3px solid var(--accent-coffee);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
