@@ -90,7 +90,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
           >
             Every day is
             <br />
-            a new story{" "}
+            a new story,{" "}
             <em className="not-italic" style={{ color: "var(--accent-mocha)" }}>
               where will
               <br className="hidden md:block" /> it take you today?

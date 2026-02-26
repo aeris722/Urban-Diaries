@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { CloudUpload, FileText, Image as ImageIcon, NotebookPen, StickyNote } from "lucide-react";
-import { Heart, Sun, MapPin } from "lucide-react";
+import { Heart, CloudRain, MapPin } from "lucide-react";
 
 const DASHBOARD_IMAGE =
   "https://images.unsplash.com/photo-1669702902242-8143cf653dec?q=80&w=459&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -121,8 +121,7 @@ export function CardGrid() {
                   Dear Diary,
                 </p>
                 <p className="text-base md:text-lg leading-relaxed mb-5" style={{ color: "var(--text)" }}>
-                Therapy days always leave my mind louder than before. I keep replaying conversations, wondering if people notice how uncomfortable I feel in groups. Somehow, talking feels harder than silence. Still, today didn’t feel entirely heavy — maybe progress isn’t obvious, just quietly happening somewhere inside me.
-                </p>
+                  Therapy today made me notice how much I overthink even small conversations. Group presentations still terrify me, but Aman waited after class and somehow made everything feel lighter. Maybe progress isn’t loud — maybe it’s just walking through Mumbai feeling a little less alone than yesterday.                </p>
 
                 <div className="grid md:grid-cols-[180px_1fr] gap-4 items-start">
                   <img
@@ -139,7 +138,7 @@ export function CardGrid() {
                     className="text-sm font-semibold mb-2"
                     style={{ color: "var(--text)" }}
                   >
-                    Today’s Snapshot
+                    Overview
                   </p>
 
                   <ul
@@ -147,15 +146,15 @@ export function CardGrid() {
                     style={{ color: "var(--landing-muted)" }}
                   >
                     <li className="flex items-center gap-2">
-                      <Heart size={16} /> Mood: Nervous but curious
+                      <Heart size={16} /> Quietly Healing
                     </li>
 
                     <li className="flex items-center gap-2">
-                      <Sun size={16} /> Weather: Humid Mumbai evening, golden sunset
+                      <CloudRain size={16} /> Calm rainy evening
                     </li>
 
                     <li className="flex items-center gap-2">
-                      <MapPin size={16} /> Location: College campus, Mumbai
+                      <MapPin size={16} /> College campus, Mumbai
                     </li>
                   </ul>
                   </div>
