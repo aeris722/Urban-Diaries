@@ -213,7 +213,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
                 }}
               >
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
-                Autosaved - just now
+                Synced
               </div>
             </div>
 
