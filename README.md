@@ -1,15 +1,15 @@
 # Urban Diaries
 
-Urban Diaries is a production-ready journaling web application focused on fast writing, autosave reliability, mood/context tracking, and Google-only authentication.
+Urban Diaries is a calm, writing-first journaling web app built for fast capture, reflection, and reliable autosave.
 
-## Project Overview
+## What It Offers
 
-- Multi-session rich-text journaling dashboard
-- Inline image support with resize/drag controls in the editor
-- Debounced autosave backed by Firestore
-- Google Auth only access model
-- Admin access flow backed by Firebase Functions custom claims
-- Responsive landing page and dashboard
+- Rich-text journaling with image support
+- Multi-session writing workflow
+- Debounced autosave to Firestore
+- Mood + context metadata (location/weather)
+- Mobile-friendly responsive experience
+- Google sign-in
 
 ## Tech Stack
 
@@ -20,7 +20,7 @@ Urban Diaries is a production-ready journaling web application focused on fast w
 - Firebase Hosting
 - Tiptap editor
 
-## Updated Source Structure
+## Project Structure
 
 ```text
 src/
@@ -29,43 +29,24 @@ src/
   hooks/
   utils/
   styles/
-  assets/
   services/
   App.tsx
   routes.tsx
   main.tsx
 ```
 
-## Setup
-
-1. Install dependencies:
+## Quick Start
 
 ```bash
 npm install
 npm install --prefix functions
-```
-
-2. Create root env file:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Create functions env file:
-
-```bash
-cp functions/.env.example functions/.env
-```
-
-4. Start development server:
-
-```bash
 npm run dev
 ```
 
 ## Environment Variables
 
-Root `.env.local`:
+Create `.env.local` from `.env.example` and set:
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -77,47 +58,31 @@ VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_FUNCTIONS_REGION=us-central1
 ```
 
-Functions `functions/.env`:
-
-```env
-ADMIN_PASSWORD=your_strong_admin_password
-ADMIN_EMAIL=your-google-account@gmail.com
-```
-
 ## Firebase Setup
 
 1. Create/select a Firebase project.
-2. Add a web app and copy config values into `.env.local`.
-3. Enable Authentication with Google provider.
-4. Create Firestore database.
-5. Deploy Firestore rules from `firestore.rules`.
-6. Configure Functions runtime env (`functions/.env`) and deploy functions.
-7. In Authentication -> Authorized domains, include your hosting domains.
+2. Add a Firebase web app and copy credentials to `.env.local`.
+3. Enable Google Authentication.
+4. Create Firestore and deploy `firestore.rules`.
+5. Add your hosting domain(s) in Firebase Auth authorized domains.
 
 ## Commands
 
-- `npm run dev` - start Vite dev server
-- `npm run build` - create production build
-- `npm run preview` - preview production build
-- `firebase emulators:start --only functions` - run functions emulator (from `functions/`)
+- `npm run dev` - start local development
+- `npm run build` - build production assets to `dist`
+- `npm run preview` - preview production build locally
 - `firebase deploy --only hosting,functions,firestore:rules` - deploy app
 
-## Deployment
+## Deployment Notes
 
-1. Build frontend:
+- Hosting is configured with a predeploy build step (`npm run build`), so deploys publish fresh `dist` output.
+- After deploy, hard refresh (`Ctrl+F5`) if your browser caches old static assets.
 
-```bash
-npm run build
-```
+## Performance + UX Notes
 
-2. Deploy:
+Recent improvements include:
 
-```bash
-firebase deploy --only hosting,functions,firestore:rules
-```
-
-3. Verify:
-
-- Google sign-in works in production
-- Dashboard sessions load/create/delete correctly
-- Autosave status transitions to `Saved`
+- Reduced heavy blur/animation load on mobile
+- Better hero CTA sizing and readability
+- Improved small-screen spacing and section flow
+- Warm, low-contrast visual effects tuned for comfort

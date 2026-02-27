@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { Button } from "../components/ui/button";
+import { UrbanDiariesLogo } from "../components/brand/UrbanDiariesLogo";
 import { useAuth } from "../hooks/useAuth";
 
 export default function AdminDashboard() {
@@ -7,8 +8,13 @@ export default function AdminDashboard() {
   const { user, logOut } = useAuth();
 
   return (
-    <div className="min-h-screen w-full bg-[#fdfbf7] px-6 py-10 text-[#44403c]">
+    <div className="page-fade-in min-h-screen w-full bg-[#fdfbf7] px-6 py-10 text-[#44403c]">
       <div className="mx-auto w-full max-w-4xl rounded-3xl border border-[#e7e5e4] bg-white p-6 shadow-sm">
+        <UrbanDiariesLogo
+          size={30}
+          className="mb-4 flex items-center gap-2.5"
+          textClassName="text-lg font-semibold tracking-tight italic"
+        />
         <h1 className="font-serif text-3xl italic text-[#292524]">Admin Dashboard</h1>
         <p className="mt-2 text-sm text-[#78716c]">
           Admin claim is active for: <span className="font-medium text-[#44403c]">{user?.email}</span>
@@ -33,3 +39,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

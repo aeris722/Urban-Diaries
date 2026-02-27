@@ -30,7 +30,7 @@ export default function Landing() {
 
   return (
     <div
-      className="min-h-screen w-full overflow-x-hidden"
+      className="page-fade-in min-h-screen w-full overflow-x-hidden"
       style={{
         background: "var(--bg)",
         color: "var(--text)",
@@ -38,7 +38,7 @@ export default function Landing() {
       }}
     >
       <nav
-        className="fixed top-0 w-full z-50"
+        className="fixed top-0 w-full z-50 glass-pop"
         style={{
           background: "rgba(252,249,246,0.82)",
           backdropFilter: "blur(16px)",
@@ -58,7 +58,7 @@ export default function Landing() {
           <button
             onClick={() => (user ? navigate("/dashboard") : handleGoogleAuth())}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:brightness-110 hover:shadow-md focus-visible:outline-none disabled:opacity-60"
+            className="cursor-pointer ui-pop ui-glow-breathe inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:brightness-110 hover:shadow-md focus-visible:outline-none disabled:opacity-60"
             style={{
               background: "var(--accent-coffee)",
               color: "#fef9f6",
@@ -84,16 +84,19 @@ export default function Landing() {
       <FeaturesSection />
 
       <section className="py-24 px-6 text-center overflow-hidden relative" style={{ background: "var(--accent-pastel-2)" }}>
+        <div className="ui-ambient-orb w-[220px] h-[220px] -top-10 left-10" style={{ background: "rgba(208,170,118,0.18)" }} />
+        <div className="ui-ambient-orb w-[180px] h-[180px] -bottom-8 right-8" style={{ background: "rgba(181,138,96,0.2)", animationDelay: "1s" }} />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(181,138,96,0.12) 0%, transparent 70%)" }}
         />
         <motion.div
-          className="max-w-3xl mx-auto relative z-10"
+          className="max-w-3xl mx-auto relative z-10 ui-soft-light rounded-3xl px-6 py-8 glass-pop"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
+          style={{ background: "rgba(255,255,255,0.36)", border: "1px solid rgba(181,138,96,0.2)" }}
         >
           <div className="text-5xl leading-none mb-6 select-none" style={{ color: "var(--accent-coffee)", fontFamily: "var(--font-display)", opacity: 0.5 }}>
             "
@@ -102,14 +105,14 @@ export default function Landing() {
             A cup of coffee, a blank page, your life.
           </blockquote>
           <p className="text-sm" style={{ color: "var(--landing-muted)" }}>
-            Urban Diaries · Daily journaling reimagined
+            Urban Diaries - Daily journaling reimagined
           </p>
 
           {!user && (
             <button
               onClick={handleGoogleAuth}
               disabled={isSubmitting}
-              className="mt-10 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-lg disabled:opacity-60"
+              className="cursor-pointer ui-pop mt-10 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-lg disabled:opacity-60"
               style={{
                 background: "var(--accent-mocha)",
                 boxShadow: "0 4px 20px rgba(107,79,58,0.28)",
@@ -207,9 +210,11 @@ export default function Landing() {
         </div>
 
         <div className="max-w-6xl mx-auto px-6 py-5 text-xs text-center" style={{ borderTop: "1px solid var(--glass-border)", color: "var(--landing-muted-strong)" }}>
-          © 2026 Urban Diaries, Inc. · Made with care and love.
+          (c) 2026 Urban Diaries, Inc. - Made with care and love.
         </div>
       </footer>
     </div>
   );
 }
+
+

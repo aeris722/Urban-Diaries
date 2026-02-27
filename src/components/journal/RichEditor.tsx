@@ -75,7 +75,7 @@ export const RichEditor = memo(function RichEditor({ initialContent, onContentCh
     editorProps: {
       attributes: {
         class:
-          "min-h-[60vh] w-full outline-none text-[#4a3b32] text-lg sm:text-xl font-serif leading-loose tiptap",
+          "min-h-[60vh] w-full max-w-[72ch] mx-auto outline-none text-[#4a3b32] text-[1.06rem] sm:text-[1.12rem] font-serif leading-[1.72] tiptap",
       },
       handleDrop: (_view, event, _slice, moved) => {
         if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
@@ -216,31 +216,31 @@ export const RichEditor = memo(function RichEditor({ initialContent, onContentCh
         <div className="flex flex-wrap items-center gap-1 sm:gap-2">
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className="rounded-md p-1.5 hover:bg-white/10"
+            className="cursor-pointer rounded-md p-1.5 hover:bg-white/10"
           >
             <Heading1 size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className="rounded-md p-1.5 hover:bg-white/10"
+            className="cursor-pointer rounded-md p-1.5 hover:bg-white/10"
           >
             <Heading2 size={16} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleBold().run()} className="rounded-md p-1.5 hover:bg-white/10">
+          <button onClick={() => editor.chain().focus().toggleBold().run()} className="cursor-pointer rounded-md p-1.5 hover:bg-white/10">
             <Bold size={16} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleItalic().run()} className="rounded-md p-1.5 hover:bg-white/10">
+          <button onClick={() => editor.chain().focus().toggleItalic().run()} className="cursor-pointer rounded-md p-1.5 hover:bg-white/10">
             <Italic size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className="rounded-md p-1.5 hover:bg-white/10"
+            className="cursor-pointer rounded-md p-1.5 hover:bg-white/10"
           >
             <UnderlineIcon size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleStrike().run()}
-            className="rounded-md p-1.5 hover:bg-white/10"
+            className="cursor-pointer rounded-md p-1.5 hover:bg-white/10"
           >
             <Strikethrough size={16} />
           </button>
@@ -254,7 +254,7 @@ export const RichEditor = memo(function RichEditor({ initialContent, onContentCh
       <div
         className={`tiptap-editor-container relative rounded-xl transition-all duration-300 ${isResizing ? "resize-active is-resizing" : ""
           } ${isDraggingOver ? "image-drop-zone drag-over" : ""}`}
-        style={isDraggingOver ? { outline: "2px solid var(--accent-coffee)", outlineOffset: 2 } : undefined}
+        style={isDraggingOver ? { outline: "2px solid var(--accent-ui)", outlineOffset: 2 } : undefined}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}

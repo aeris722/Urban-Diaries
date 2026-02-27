@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { UrbanDiariesLogo } from "../components/brand/UrbanDiariesLogo";
 import { useAuth } from "../hooks/useAuth";
 import { functions } from "../services/firebase";
 
@@ -99,12 +100,17 @@ export default function AdminAccess() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#faf9f6] px-6 py-12 text-[#44403c]">
+    <div className="page-fade-in min-h-screen w-full bg-[#faf9f6] px-6 py-12 text-[#44403c]">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto w-full max-w-md rounded-3xl border border-[#e7e5e4] bg-white/90 p-6 shadow-sm"
       >
+        <UrbanDiariesLogo
+          size={30}
+          className="mb-4 flex items-center gap-2.5"
+          textClassName="text-lg font-semibold tracking-tight italic"
+        />
         <h1 className="font-serif text-2xl italic text-[#292524]">Admin Access</h1>
         <p className="mt-2 text-sm text-[#78716c]">
           Sign in with Google, then enter your private admin password.
@@ -149,3 +155,4 @@ export default function AdminAccess() {
     </div>
   );
 }
+

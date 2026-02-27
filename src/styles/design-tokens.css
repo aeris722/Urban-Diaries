@@ -10,7 +10,9 @@
   --accent-pastel-1: #efd9c1;
   --accent-pastel-2: #f3e4d6;
   --accent-mocha: #6b4f3a;
-  --accent-teal: #6ec6c6;
+  --accent-teal: #cfab84;
+  --accent-ui: #b88d5b;
+  --accent-success: #d2ab6a;
   --notion-blue: #2f6fbf;
   --glass-blur: 12px;
   --card-radius: 14px;
@@ -19,6 +21,7 @@
   --glass-border: rgba(255, 255, 255, 0.35);
   --font-display: "Playfair Display", "Source Serif 4", Georgia, serif;
   --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-script: "Pinyon Script", "Brush Script MT", cursive;
 
   /* spacing + layout tokens */
   --space-1: 0.25rem;
@@ -51,7 +54,9 @@
   --accent-pastel-1: #3f2e25;
   --accent-pastel-2: #2f221c;
   --accent-mocha: #f2c8a2;
-  --accent-teal: #72d8db;
+  --accent-teal: #ddb181;
+  --accent-ui: #dfb784;
+  --accent-success: #f0ca8b;
   --notion-blue: #69a7ff;
   --glass-border: rgba(214, 179, 150, 0.22);
   --shadow-1: 0 12px 28px rgba(6, 4, 3, 0.42);
@@ -66,7 +71,7 @@
 }
 
 .glass-button-focus:focus-visible {
-  outline: 3px solid var(--accent-coffee);
+  outline: 3px solid var(--accent-ui);
   outline-offset: 3px;
 }
 

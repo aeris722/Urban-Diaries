@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, BookOpen, CloudSun, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, CircleHelp, CloudSun, MapPin, Smile, Sparkles } from "lucide-react";
 import type { User } from "firebase/auth";
 
 const ROTATING_TAGLINES = [
@@ -31,6 +31,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
         setTaglineVisible(true);
       }, 380);
     }, 7000);
+
     return () => {
       clearInterval(timer);
       if (pendingTimeoutRef.current !== null) {
@@ -40,7 +41,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
   }, []);
 
   return (
-    <section className="relative min-h-[92vh] flex items-center pt-28 pb-16 overflow-hidden" style={{ background: "var(--bg)" }}>
+    <section className="relative min-h-[84vh] flex items-center pt-24 pb-10 overflow-hidden" style={{ background: "var(--bg)", contentVisibility: "auto", containIntrinsicSize: "1px 780px" }}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           className="absolute -top-32 left-1/3 w-[620px] h-[620px] rounded-full"
@@ -52,7 +53,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
         <div
           className="absolute top-16 -right-24 w-[480px] h-[480px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(110,198,198,0.22) 0%, rgba(110,198,198,0) 70%)",
+            background: "radial-gradient(circle, rgba(208,170,118,0.2) 0%, rgba(208,170,118,0) 70%)",
             filter: "blur(72px)",
           }}
         />
@@ -65,7 +66,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
         />
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-12 gap-8 items-center relative z-10">
+      <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-12 gap-y-12 lg:gap-x-16 xl:gap-x-20 items-center relative z-10">
         <div className="col-span-12 lg:col-span-7 space-y-8">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }}>
             <span
@@ -85,16 +86,14 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.15, ease: "easeOut" }}
-            className="text-5xl md:text-6xl xl:text-7xl leading-[1.08] tracking-tight"
+            className="max-w-3xl text-3xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] tracking-tight"
             style={{ fontFamily: "var(--font-display)", color: "var(--text)" }}
           >
-            Every day is
-            <br />
-            a new story,{" "}
-            <em className="not-italic" style={{ color: "var(--accent-mocha)" }}>
-              where will
-              <br className="hidden md:block" /> it take you today?
-            </em>
+            Every day is a new
+            story,
+            <span className="block" style={{ color: "var(--accent-mocha)" }}>
+              where will it take you today?
+            </span>
           </motion.h1>
 
           <motion.div
@@ -129,29 +128,28 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
             <button
               onClick={user ? onNavigateToDashboard : onGoogleAuth}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none"
               style={{
                 background: "var(--accent-coffee)",
-                boxShadow: "0 4px 18px rgba(181,138,96,0.4)",
-                ["--tw-ring-color" as string]: "var(--accent-coffee)",
+                boxShadow: "0 8px 18px rgba(107,79,58,0.24)",
+                ["--tw-ring-color" as string]: "var(--accent-ui)",
               }}
             >
               {user ? "Open Dashboard" : isSubmitting ? "Signing in..." : "Start Writing Free"}
-              <ArrowRight size={18} />
+              <ArrowRight size={16} />
             </button>
 
             <a
               href="#features"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-base font-medium transition-all duration-200 hover:shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-white/45 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-offset-2"
               style={{
-                background: "rgba(255,255,255,0.65)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid var(--glass-border)",
-                color: "var(--text)",
-                ["--tw-ring-color" as string]: "var(--accent-coffee)",
+                background: "transparent",
+                border: "1px solid rgba(125,113,104,0.35)",
+                color: "var(--landing-muted-strong)",
+                ["--tw-ring-color" as string]: "var(--accent-ui)",
               }}
             >
-              <BookOpen size={16} />
+              <CircleHelp size={15} />
               Learn more
             </a>
           </motion.div>
@@ -163,7 +161,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
             className="text-xs tracking-wide"
             style={{ color: "var(--landing-muted)" }}
           >
-            Google login - Autosave - Free forever 
+            No ads | Private | Auto-saved
           </motion.p>
 
           {(localError ?? authError) && (
@@ -174,20 +172,28 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
         </div>
 
         <motion.div
-          className="col-span-12 lg:col-span-5"
+          className="col-span-12 lg:col-span-5 relative"
           initial={{ opacity: 0, x: 32, y: 8 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
         >
           <div
-            className="relative overflow-hidden"
+            className="absolute -inset-5 rounded-[28px] pointer-events-none"
+            style={{
+              background: "radial-gradient(circle at 50% 35%, rgba(208,170,118,0.18), rgba(208,170,118,0) 72%)",
+              filter: "blur(18px)",
+            }}
+            aria-hidden="true"
+          />
+          <div
+            className="relative overflow-hidden transition-transform duration-300 hover:-translate-y-1"
             style={{
               background: "rgba(255,255,255,0.55)",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
               border: "1px solid var(--glass-border)",
               borderRadius: "20px",
-              boxShadow: "var(--shadow-2), inset 0 1px 0 rgba(255,255,255,0.7)",
+              boxShadow: "0 12px 28px rgba(43,38,35,0.08), inset 0 1px 0 rgba(255,255,255,0.7)",
             }}
           >
             <div className="relative h-56 overflow-hidden" style={{ borderRadius: "20px 20px 0 0" }}>
@@ -212,7 +218,7 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
                   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 }}
               >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
+                <span className="sync-dot w-1.5 h-1.5 rounded-full" />
                 Synced
               </div>
             </div>
@@ -224,8 +230,12 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
                   New Delhi
                 </span>
                 <span className="flex items-center gap-1 text-xs" style={{ color: "var(--landing-muted)" }}>
+                  <Smile size={11} />
+                  Happy
+                </span>
+                <span className="flex items-center gap-1 text-xs" style={{ color: "var(--landing-muted)" }}>
                   <CloudSun size={11} />
-                  22 C  - Clear
+                  22 C - Clear
                 </span>
               </div>
 
@@ -265,7 +275,11 @@ export function Hero({ user, isSubmitting, localError, authError, onGoogleAuth, 
           </div>
         </motion.div>
       </div>
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[72%] h-px pointer-events-none"
+        style={{ background: "linear-gradient(to right, transparent, rgba(181,138,96,0.42), transparent)" }}
+        aria-hidden="true"
+      />
     </section>
   );
 }
-

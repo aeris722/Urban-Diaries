@@ -27,10 +27,17 @@ const emptyDraft: SessionDraft = {
 };
 
 function statusLabel(status: SaveStatus): string {
-  if (status === "saving") return "Saving...";
-  if (status === "saved") return "Saved";
+  if (status === "saving") return "Autosaving";
+  if (status === "saved") return "All changes saved";
   if (status === "error") return "Save failed";
-  return "Idle";
+  return "Ready";
+}
+
+function getContextGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Morning thoughts?";
+  if (hour < 20) return "Ready to reflect?";
+  return "A quiet night to write and unwind.";
 }
 
 function extractImageSources(content: string): string[] {
@@ -274,9 +281,10 @@ export default function Dashboard() {
   );
 
   const saveStateText = useMemo(() => statusLabel(saveStatus), [saveStatus]);
+  const contextualGreeting = useMemo(() => getContextGreeting(), []);
 
   return (
-    <div className="min-h-screen w-full bg-[#fdfbf7] text-[#44403c] selection:bg-[#fde68a]/50 selection:text-[#451a03]">
+    <div className="page-fade-in min-h-screen w-full bg-[#fdfbf7] text-[#44403c] selection:bg-[#fde68a]/50 selection:text-[#451a03]">
       <Navbar onMenuClick={() => setIsSidebarOpen((prev) => !prev)} />
 
       <div
@@ -300,34 +308,65 @@ export default function Dashboard() {
       />
 
       <div className="mx-auto w-full max-w-[1400px] px-4 py-4 lg:px-6 lg:py-6">
-        <main className="min-w-0 rounded-3xl border border-[#e7e5e4] bg-white/55 p-4 backdrop-blur-xl lg:p-6">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <main className="min-w-0 rounded-3xl border border-[#e7e5e4] bg-white/55 p-4 backdrop-blur-xl transition-shadow duration-200 hover:shadow-md lg:p-6">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, ease: "easeOut" }}>
+            <div className="mx-auto w-full max-w-[980px]">
+              <div className="mb-4 rounded-2xl border border-[#ece8e1] bg-[#faf7f2] px-4 py-3">
+                <p className="text-lg font-serif italic text-[#4d443d]">{contextualGreeting}</p>
+                <p className="mt-1 text-xs text-[#877b72]">Your writing is private and auto-saved.</p>
+              </div>
+
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <input
                 value={draft.title}
                 onChange={(event) => updateDraft({ title: event.target.value })}
                 disabled={!isDraftReady}
                 placeholder="Untitled Entry"
-                className="w-full max-w-[520px] rounded-xl border border-[#e7e5e4] bg-white px-4 py-2 text-xl font-serif italic outline-none focus:border-[#a8a29e]"
+                className="w-full max-w-[620px] rounded-xl border border-[#e7e5e4] bg-white px-4 py-2 text-xl font-serif italic outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                style={{ ["--tw-ring-color" as string]: "var(--accent-ui)" }}
               />
-              <span className={`text-xs uppercase tracking-wider ${saveStatus === "error" ? "text-red-600" : "text-[#78716c]"}`}>
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] uppercase tracking-wider ${
+                  saveStatus === "error" ? "border-red-200 text-red-600" : "border-[#e3ddd4] text-[#6f655d]"
+                }`}
+              >
+                <span
+                  className={`save-status-dot ${
+                    saveStatus === "saving"
+                      ? "is-saving"
+                      : saveStatus === "saved"
+                        ? "is-saved"
+                        : saveStatus === "error"
+                          ? "is-error"
+                          : "is-idle"
+                  }`}
+                />
                 {saveStateText}
               </span>
+              </div>
             </div>
 
-            <MetadataBar
-              locationName={weatherLoading ? "Detecting location..." : locationName}
-              temperature={temperature}
-              weatherIconName={icon}
-              location={draft.location}
-              onLocationChange={(location) => updateDraft({ location })}
-              temperatureValue={draft.temperature}
-              onTemperatureChange={(value) => updateDraft({ temperature: value })}
-              mood={draft.mood}
-              onMoodSelect={(mood) => updateDraft({ mood })}
-            />
+            <div className="mx-auto w-full max-w-[980px]">
+              <MetadataBar
+                locationName={weatherLoading ? "Detecting location..." : locationName}
+                temperature={temperature}
+                weatherIconName={icon}
+                location={draft.location}
+                onLocationChange={(location) => updateDraft({ location })}
+                temperatureValue={draft.temperature}
+                onTemperatureChange={(value) => updateDraft({ temperature: value })}
+                mood={draft.mood}
+                onMoodSelect={(mood) => updateDraft({ mood })}
+              />
+            </div>
 
-            <div className="mt-5 rounded-[2rem] border border-[#ecebe8] bg-[#fcfcfc]/70 p-4 shadow-sm lg:p-8">
+            <motion.div
+              key={activeSessionId ?? "empty-entry"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="mx-auto mt-5 w-full max-w-[980px] rounded-[2rem] border border-[#ecebe8] bg-[#fcfcfc]/70 p-4 shadow-sm lg:p-8"
+            >
               {actionError ? <p className="mb-3 text-xs text-red-600">{actionError}</p> : null}
               <Suspense fallback={<Skeleton className="h-[60vh] w-full rounded-2xl" />}>
                 {isDraftReady ? (
@@ -340,7 +379,7 @@ export default function Dashboard() {
                   <Skeleton className="h-[60vh] w-full rounded-2xl" />
                 )}
               </Suspense>
-            </div>
+            </motion.div>
           </motion.div>
         </main>
       </div>

@@ -8,13 +8,13 @@
 .tiptap {
   overflow: visible;
   contain: none;
-  caret-color: var(--accent-mocha);
+  caret-color: var(--accent-ui);
   line-height: 1.7;
 }
 
 /* Keyboard focus outline for accessibility */
 .tiptap:focus-visible {
-  outline: 2px solid var(--accent-coffee);
+  outline: 2px solid var(--accent-ui);
   outline-offset: 4px;
   border-radius: 0.5rem;
 }
@@ -47,7 +47,7 @@
 
 /* Selection state only — no random borders */
 .tiptap .journal-image.is-selected {
-  outline: 2px solid var(--accent-coffee);
+  outline: 2px solid var(--accent-ui);
   outline-offset: 3px;
   border-radius: 0.75rem;
 }
@@ -58,7 +58,7 @@
 }
 
 .image-drop-zone.drag-over {
-  border-color: var(--accent-coffee);
+  border-color: var(--accent-ui);
   background: rgba(181, 138, 96, 0.08);
 }
 
@@ -171,7 +171,7 @@
   position: absolute;
   width: 12px;
   height: 12px;
-  border: 2px solid var(--accent-coffee);
+  border: 2px solid var(--accent-ui);
   background: #fff;
   border-radius: 3px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
@@ -182,7 +182,7 @@
 
 .resize-handle:hover {
   transform: scale(1.15);
-  background: var(--accent-pastel-1);
+  background: rgba(208, 170, 118, 0.2);
 }
 
 .resize-handle--nw {
@@ -261,4 +261,25 @@
   max-width: 100%;
   position: relative;
   z-index: 2;
+}
+
+.tiptap p {
+  margin: 0 0 1rem;
+}
+
+.tiptap p:last-child {
+  margin-bottom: 0;
+}
+
+.tiptap ul,
+.tiptap ol,
+.tiptap blockquote {
+  margin: 0.25rem 0 1rem;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.7rem;
 }
